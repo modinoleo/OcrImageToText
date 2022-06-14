@@ -1,0 +1,63 @@
+﻿@page "/"
+@using IronOcr
+
+<PageTitle>Index</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Reading Text from Images in .NET Applications
+
+<div class="form-row mt-4">
+    <div class="form-group col-md-6">
+        <label class="col-form-label"></label>
+
+        <button type="button" @onclick="LoadImages" class="btn btn-primary">Load Images</button>
+    </div>
+
+    <div class="row"></div>
+    @if (fileList != null && fileList.Count() > 0)
+    {
+        int nsl = 0;
+        <ul style="list-style-type:none;">
+            @foreach (var file in fileList)
+            {
+                nsl++;
+                <li>
+                    <span>@nsl.</span>
+                    <a href="" @onclick="@(e => ReadFiles(file))">@file</a>
+                </li>
+            }
+        </ul>
+        <textarea style="height: 500px; width: 100%">@imageText</textarea>
+    }
+
+
+</div>
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+@code {
+    string imageText = "";
+    string ImageName = "";
+    List<string> fileList = new List<string>();
+    string path = $"{Directory.GetCurrentDirectory()}{@"\wwwroot\files"}";
+    public void LoadImages()
+    {
+        var files = Directory.GetFiles(path);
+        foreach (var file in files)
+        {
+            fileList.Add(Path.GetFileName(file));
+        }
+    }
+    public void ReadFiles(string fileName)
+    {
+        ImageName = fileName;
+
+        var Ocr = new IronTesseract();
+        using (var input = new OcrInput(path + "/" + ImageName)){
+
+            var output = Ocr.Read(input);
+             imageText = output.Text;
+        }
+        //var result = new IronTesseract().Read(path + "/" + ImageName);
+    }
+}
